@@ -4,10 +4,9 @@ import jdk.nashorn.internal.objects.NativeFunction;
 import jdk.nashorn.internal.runtime.Undefined;
 
 import javax.script.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScriptLoader {
 
@@ -34,6 +33,28 @@ public class ScriptLoader {
             return e.getMessage();
         }
         return null;
+    }
+
+    public List getFunctionName(String scriptBody){
+        List<String> allMatches = new ArrayList<>();
+        scriptBody = scriptBody.trim().replaceAll(" +", " ");
+        Matcher m = Pattern.compile("function [$A-Za-z_][0-9a-zA-Z_$]*")
+                .matcher(scriptBody);
+        while (m.find()) {
+            allMatches.add(m.group().split(" ")[1]);
+        }
+
+        return allMatches;
+    }
+
+    public List<String> getParametersName(String scriptBody, String functionName){
+        scriptBody = scriptBody.trim().replaceAll(" +", "");
+        int index = scriptBody.indexOf(functionName);
+        String result = scriptBody.substring(index+functionName.length()+1, scriptBody.indexOf(')'));
+
+        String[] parameters = result.split(",");
+
+        return Arrays.asList(parameters);
     }
 
 

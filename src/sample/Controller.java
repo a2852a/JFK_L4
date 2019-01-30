@@ -33,9 +33,11 @@ public class Controller implements Initializable{
     @FXML
     private void addScriptAction(){
 
-        String result = scriptLoader.loadNewScript(tab2ScriptTextArea.getText());
-        if(result !=null)
-            tab2ScriptTextArea.setText(result);
+//        String result = scriptLoader.loadNewScript(tab2ScriptTextArea.getText());
+//        if(result !=null)
+//            tab2ScriptTextArea.setText(result);
+        System.out.println(scriptLoader.getParametersName(tab2ScriptTextArea.getText(), "test1"));
+
     }
 
 
