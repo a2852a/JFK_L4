@@ -46,6 +46,7 @@ public class Controller implements Initializable{
         ToggleGroup toggleGroup = new ToggleGroup();
         tab2NashornRadioButton.setToggleGroup(toggleGroup);
         tab2GroovyRadioButton.setToggleGroup(toggleGroup);
+        tab2NashornRadioButton.setSelected(true);
     }
 
     @FXML

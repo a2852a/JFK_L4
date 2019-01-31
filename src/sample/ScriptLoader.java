@@ -11,7 +11,8 @@ public class ScriptLoader {
     private ScriptEngine engineGroovy;
     private HashMap<String, ListItem> nashornFunctionMetaData;
     private HashMap<String, ListItem> groovyFunctionMetaData;
-    private ScriptContext context;
+    private ScriptContext nashornContext;
+    private ScriptContext groovyContext;
     private StringWriter stringWriter;
     private PrintWriter printWriter;
     private ScriptLangType scriptLangType;
@@ -23,12 +24,15 @@ public class ScriptLoader {
         this.engineNashorn = factory.getEngineByName("nashorn");
         this.nashornFunctionMetaData = new HashMap<>();
         this.groovyFunctionMetaData = new HashMap<>();
-        this.context = engineNashorn.getContext();
+        this.nashornContext = engineNashorn.getContext();
+        this.groovyContext = engineGroovy.getContext();
         this.stringWriter = new StringWriter();
         this.printWriter = new PrintWriter(stringWriter, true);
         this.scriptLangType = ScriptLangType.NASHORN;
-        context.setWriter(printWriter);
-        context.setErrorWriter(printWriter);
+        nashornContext.setWriter(printWriter);
+        nashornContext.setErrorWriter(printWriter);
+        groovyContext.setWriter(printWriter);
+        groovyContext.setErrorWriter(printWriter);
     }
 
     public void setScriptLangType(ScriptLangType scriptLangType) {
