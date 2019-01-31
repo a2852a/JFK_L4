@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,6 +32,8 @@ public class Controller implements Initializable{
 
     private ScriptLoader scriptLoader;
 
+    String functionKey;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -51,8 +55,29 @@ public class Controller implements Initializable{
         tab1ScriptListView.setItems(items);
         tab1ScriptListView.getSelectionModel().clearSelection();
 
+
+        tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue != null)
+                    functionKey = newValue;
+
+
+                //tab1ResultTextArea.setText(scriptLoader.invokeFunction(newValue,null));
+            }
+        });
+
+
        // System.out.println(scriptLoader.getParametersName(tab2ScriptTextArea.getText(), "test1"));
 
+    }
+
+    @FXML
+    private void invokeFunction(){
+        String result = scriptLoader.invokeFunction(functionKey,null);
+        tab1ResultTextArea.setText(result);
+
+        System.out.println("TEST " + result);
     }
 
 
