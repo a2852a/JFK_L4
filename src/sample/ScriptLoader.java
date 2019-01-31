@@ -7,28 +7,57 @@ import java.util.*;
 public class ScriptLoader {
 
     private ScriptEngineManager factory;
-    private ScriptEngine engine ;
-    private HashMap<String,ListItem> functionMetaData;
+    private ScriptEngine engineNashorn;
+    private ScriptEngine engineGroovy;
+    private HashMap<String, ListItem> nashornFunctionMetaData;
+    private HashMap<String, ListItem> groovyFunctionMetaData;
     private ScriptContext context;
     private StringWriter stringWriter;
     private PrintWriter printWriter;
+    private ScriptLangType scriptLangType;
 
-    public ScriptLoader(){
+    public ScriptLoader() {
         this.factory = new ScriptEngineManager();
-        this.engine = factory.getEngineByName("nashorn");
-        this.functionMetaData = new HashMap<>();
-        this.context = engine.getContext();
+
+        this.engineGroovy = factory.getEngineByName("groovy");
+        this.engineNashorn = factory.getEngineByName("nashorn");
+        this.nashornFunctionMetaData = new HashMap<>();
+        this.groovyFunctionMetaData = new HashMap<>();
+        this.context = engineNashorn.getContext();
         this.stringWriter = new StringWriter();
         this.printWriter = new PrintWriter(stringWriter, true);
+        this.scriptLangType = ScriptLangType.NASHORN;
         context.setWriter(printWriter);
         context.setErrorWriter(printWriter);
     }
 
+    public void setScriptLangType(ScriptLangType scriptLangType) {
+        this.scriptLangType = scriptLangType;
+    }
 
-    private String evaluateScript(String scriptBody){
+    enum ScriptLangType {
+        NASHORN(0),
+        GROOVY(1);
+        private int number;
+
+        public int getNumber() {
+            return number;
+        }
+
+        ScriptLangType(int number) {
+            this.number = number;
+        }
+    }
+
+
+    private String evaluateScript(String scriptBody) {
 
         try {
-            engine.eval(scriptBody);
+            if (scriptLangType == ScriptLangType.NASHORN)
+                engineNashorn.eval(scriptBody);
+            else {
+                engineGroovy.eval(scriptBody);
+            }
         } catch (ScriptException e) {
             return e.getMessage();
         }
@@ -36,21 +65,21 @@ public class ScriptLoader {
         return null;
     }
 
-    private void getNames(String scriptBody){
+    private void getNames(String scriptBody) {
 
         scriptBody = scriptBody.trim().replaceAll(" +", " ");
         scriptBody = scriptBody.trim().replaceAll("\n+", "");
 
         int lastNameIndex = scriptBody.length();
 
-        while(lastNameIndex > 0) {
+        while (lastNameIndex > 0) {
 
             int startIndex = 0;
             int lastIndex = scriptBody.indexOf('}');
 
-            lastNameIndex = scriptBody.indexOf(')')+1;
+            lastNameIndex = scriptBody.indexOf(')') + 1;
 
-            if(lastIndex < 0 || lastNameIndex < 0) return;
+            if (lastIndex < 0 || lastNameIndex < 0) return;
 
             String functionDeclaration = scriptBody.substring(startIndex, lastNameIndex);
 
@@ -60,12 +89,12 @@ public class ScriptLoader {
             String[] parameters = getParameterNames(functionDeclaration);
 
             List<String> parList;
-                if(parameters == null){
-                    parList = null;
-                }else{
-                    parList = Arrays.asList(parameters);
-                }
-                secureAdd(functionDeclaration,new ListItem(functionName,parList));
+            if (parameters == null) {
+                parList = null;
+            } else {
+                parList = Arrays.asList(parameters);
+            }
+            secureAdd(functionDeclaration, new ListItem(functionName, parList));
 
             scriptBody = scriptBody.substring(lastIndex + 1);
 
@@ -73,23 +102,23 @@ public class ScriptLoader {
     }
 
 
-    private String getFunctionName(String functionDeclaration){
+    private String getFunctionName(String functionDeclaration) {
 
-        int firstLetterIndex = functionDeclaration.indexOf(" ")+1;
+        int firstLetterIndex = functionDeclaration.indexOf(" ") + 1;
         int lastIndex = functionDeclaration.indexOf("(");
 
 
-        return functionDeclaration.substring(firstLetterIndex,lastIndex);
+        return functionDeclaration.substring(firstLetterIndex, lastIndex);
 
     }
 
-    private String[] getParameterNames(String functionDeclaration){
+    private String[] getParameterNames(String functionDeclaration) {
 
-        int startIndex = functionDeclaration.indexOf('(')+1;
+        int startIndex = functionDeclaration.indexOf('(') + 1;
         int endIndex = functionDeclaration.indexOf(')');
 
-        if(startIndex == 0 || endIndex < 0 || startIndex == endIndex) return null;
-        else{
+        if (startIndex == 0 || endIndex < 0 || startIndex == endIndex) return null;
+        else {
 
             String parametersRaw = functionDeclaration.substring(
                     startIndex,
@@ -102,53 +131,76 @@ public class ScriptLoader {
     }
 
 
-    private void secureAdd(String newKey, ListItem newListItem){
+    private void secureAdd(String newKey, ListItem newListItem) {
+        if (scriptLangType == ScriptLangType.NASHORN) {
+            for (String key : nashornFunctionMetaData.keySet()) {
 
-        for(String key : functionMetaData.keySet()){
+                String functionName = nashornFunctionMetaData.get(key).getFunctionName();
 
-            String functionName = functionMetaData.get(key).getFunctionName();
+                if (functionName.equals(newListItem.functionName)) {
+                    nashornFunctionMetaData.remove(key);
+                    nashornFunctionMetaData.put(newKey, newListItem);
+                    return;
+                }
 
-            if(functionName.equals(newListItem.functionName)){
-                functionMetaData.remove(key);
-                functionMetaData.put(newKey,newListItem);
-                return;
             }
 
-        }
+            nashornFunctionMetaData.put(newKey, newListItem);
+        } else if (scriptLangType == ScriptLangType.GROOVY) {
+            for (String key : groovyFunctionMetaData.keySet()) {
 
-        functionMetaData.put(newKey,newListItem);
+                String functionName = groovyFunctionMetaData.get(key).getFunctionName();
+
+                if (functionName.equals(newListItem.functionName)) {
+                    groovyFunctionMetaData.remove(key);
+                    groovyFunctionMetaData.put(newKey, newListItem);
+                    return;
+                }
+
+            }
+
+            groovyFunctionMetaData.put(newKey, newListItem);
+        }
 
 
     }
 
 
-    public String invokeFunction(String functionKey, Object[] args){
+    public String invokeFunction(String functionKey, Object[] args) {
         String result;
         stringWriter.getBuffer().setLength(0);
 
-        Invocable invocable = (Invocable) engine;
+        Invocable invocable = null;
+        String functionName = null;
 
-        String functionName = functionMetaData.get(functionKey).getFunctionName();
+        if (scriptLangType == ScriptLangType.NASHORN) {
+            invocable = (Invocable) engineNashorn;
+
+            functionName = nashornFunctionMetaData.get(functionKey).getFunctionName();
+        } else if (scriptLangType == ScriptLangType.GROOVY) {
+            invocable = (Invocable) engineGroovy;
+
+            functionName = groovyFunctionMetaData.get(functionKey).getFunctionName();
+        }
 
         try {
-           result = String.valueOf(invocable.invokeFunction(functionName,args));
+            result = String.valueOf(invocable.invokeFunction(functionName, args));
         } catch (Exception e) {
-           result = e.getMessage();
+            result = e.getMessage();
         }
 
         return stringWriter.toString() + result;
     }
 
+    @Deprecated
+    public void printAllListItems() {
 
-
-    public void printAllListItems(){
-
-        for(String key : functionMetaData.keySet()){
-            ListItem item = functionMetaData.get(key);
+        for (String key : nashornFunctionMetaData.keySet()) {
+            ListItem item = nashornFunctionMetaData.get(key);
             System.out.println(item.getFunctionName());
-            if(item.parameterNames == null) continue;
+            if (item.parameterNames == null) continue;
             System.out.println(item.parameterNames.size());
-           for(String parName : item.parameterNames)
+            for (String parName : item.parameterNames)
                 System.out.println(parName);
         }
 
@@ -156,9 +208,11 @@ public class ScriptLoader {
     }
 
 
-    public List<String> getLoadedFunctions(){
-
-        return new LinkedList<>(functionMetaData.keySet());
+    public List<String> getLoadedFunctions() {
+        if (scriptLangType == ScriptLangType.NASHORN)
+            return new LinkedList<>(nashornFunctionMetaData.keySet());
+        else
+            return new LinkedList<>(groovyFunctionMetaData.keySet());
     }
 
 
@@ -166,14 +220,14 @@ public class ScriptLoader {
 
         String errorText = evaluateScript(scriptBody);
 
-        if(errorText != null){
+        if (errorText != null) {
             return errorText;
-        }else{
+        } else {
             getNames(scriptBody);
 
             //TODO obsluga zapisu do listy
         }
 
-    return null;
+        return null;
     }
 }

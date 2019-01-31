@@ -4,11 +4,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -30,6 +29,12 @@ public class Controller implements Initializable{
     @FXML
     private Button tab2AddScriptButton;
 
+    @FXML
+    private RadioButton tab2NashornRadioButton;
+
+    @FXML
+    private RadioButton tab2GroovyRadioButton;
+
     private ScriptLoader scriptLoader;
 
     String functionKey;
@@ -38,6 +43,9 @@ public class Controller implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         scriptLoader = new ScriptLoader();
+        ToggleGroup toggleGroup = new ToggleGroup();
+        tab2NashornRadioButton.setToggleGroup(toggleGroup);
+        tab2GroovyRadioButton.setToggleGroup(toggleGroup);
     }
 
     @FXML
@@ -78,6 +86,20 @@ public class Controller implements Initializable{
         tab1ResultTextArea.setText(result);
 
         //System.out.println("TEST " + result);
+    }
+
+    @FXML
+    void radioButtonSelected(ActionEvent event) {
+        RadioButton radioButton = (RadioButton)event.getSource();
+        String text = radioButton.getText();
+        switch(text) {
+            case "Nashorn":
+                scriptLoader.setScriptLangType(ScriptLoader.ScriptLangType.NASHORN);
+                break;
+            case "Groovy":
+                scriptLoader.setScriptLangType(ScriptLoader.ScriptLangType.GROOVY);
+                break;
+        }
     }
 
 
