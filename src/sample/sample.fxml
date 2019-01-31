@@ -16,7 +16,7 @@
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <ListView fx:id="scriptListView" layoutX="98.0" layoutY="56.0" prefHeight="390.0" prefWidth="253.0" />
+                  <ListView fx:id="tab1ScriptListView" layoutX="98.0" layoutY="56.0" prefHeight="390.0" prefWidth="253.0" />
                   <Button fx:id="tab1ExecuteButton" layoutX="886.0" layoutY="509.0" mnemonicParsing="false" text="Button" />
                   <TextArea fx:id="tab1ResultTextArea" layoutX="419.0" layoutY="56.0" prefHeight="384.0" prefWidth="513.0" />
                </children></AnchorPane>

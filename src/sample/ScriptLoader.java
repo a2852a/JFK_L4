@@ -1,8 +1,5 @@
 package sample;
 
-import jdk.nashorn.internal.objects.NativeFunction;
-import jdk.nashorn.internal.runtime.Undefined;
-
 import javax.script.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,108 +9,183 @@ public class ScriptLoader {
 
     ScriptEngineManager factory;
     ScriptEngine engine ;
-    LinkedList<String> scriptNames;
+    LinkedList<ListItem> functionMetaData;
 
 
     public ScriptLoader(){
         this.factory = new ScriptEngineManager();
         this.engine = factory.getEngineByName("nashorn");
-        this.scriptNames = new LinkedList<>();
+        this.functionMetaData = new LinkedList<>();
     }
 
 
     private String evaluateScript(String scriptBody){
 
         try {
-
-
-            //engine.put("x",scriptBody);
-            engine.eval(scriptBody);
+            engine.eval(scriptBody).toString();
         } catch (ScriptException e) {
             return e.getMessage();
         }
+
         return null;
     }
 
-    public List getFunctionName(String scriptBody){
-        List<String> allMatches = new ArrayList<>();
+    private void getNames(String scriptBody){
+
         scriptBody = scriptBody.trim().replaceAll(" +", " ");
+
+        int lastNameIndex = scriptBody.length();
+
+        while(lastNameIndex > 0) {
+
+            //System.out.println(lastNameIndex);
+
+            int startIndex = 0;
+            int lastIndex = scriptBody.indexOf('}');
+
+            lastNameIndex = scriptBody.indexOf(')')+1;
+
+            String functionDeclaration = scriptBody.substring(startIndex, lastNameIndex);
+
+
+            String[] parameters = getParameterNames(functionDeclaration);
+            if(parameters == null) break;
+            else{
+                secureAdd(new ListItem(functionDeclaration,Arrays.asList(parameters)));
+            }
+
+
+           // System.out.println(Arrays.asList(parameters));
+
+            scriptBody = scriptBody.substring(lastIndex + 1);
+
+        }
+    }
+
+    private String[] getParameterNames(String functionDeclaration){
+
+        int startIndex = functionDeclaration.indexOf('(')+1;
+        int endIndex = functionDeclaration.indexOf(')');
+
+        if(startIndex < 0 || endIndex < 0) return null;
+        else{
+
+            String parametersRaw = functionDeclaration.substring(
+                    startIndex,
+                    endIndex
+
+            );
+
+            String[] parameters = parametersRaw.split(",");
+            return parameters;
+        }
+    }
+
+
+
+    @Deprecated
+    private List getFunctionName(String scriptBody){
+        List<String> allMatches = new ArrayList<>();
+        String scriptBodyTmp = scriptBody.trim().replaceAll(" +", " ");
         Matcher m = Pattern.compile("function [$A-Za-z_][0-9a-zA-Z_$]*")
-                .matcher(scriptBody);
+                .matcher(scriptBodyTmp);
         while (m.find()) {
-            allMatches.add(m.group().split(" ")[1]);
+            String functionName = m.group().split(" ")[1];
+            //getParametersName(scriptBody,functionName);
+
+            String func = "(function(reComments, reParams, reNames) {\n" +
+                    "  getParamNames = function(fn) {\n" +
+                    "    return ((fn + '').replace(reComments, '').match(reParams) || [0, ''])[1].match(reNames) || [];\n" +
+                    "  };\n" +
+                    "})(\n" +
+                    "  /\\/\\*[\\s\\S]*?\\*\\/|\\/\\/.*?[\\r\\n]/g,\n" +
+                    "  /\\(([\\s\\S]*?)\\)/,\n" +
+                    "  /[$\\w]+/g\n" +
+                    ");";
+
+
+
+            try {
+                engine.eval(func);
+                Invocable invocable = (Invocable) engine;
+                String results =  invocable.invokeFunction("getParamNames",functionName).toString();
+
+                System.out.println(Arrays.asList(results));
+
+            } catch (ScriptException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            //allMatches.add(m.group().split(" ")[1]);
         }
 
         return allMatches;
     }
 
-    public List<String> getParametersName(String scriptBody, String functionName){
-        scriptBody = scriptBody.trim().replaceAll(" +", "");
-        int index = scriptBody.indexOf(functionName);
-        String result = scriptBody.substring(index+functionName.length()+1, scriptBody.indexOf(')'));
+    @Deprecated
+    private void getParametersName(String scriptBody, String functionName){
+        String scriptBodyTmp = scriptBody.trim().replaceAll(" +", "");
+        int index = scriptBodyTmp.indexOf(functionName);
+        try {
 
-        String[] parameters = result.split(",");
+            String result = scriptBodyTmp.substring(index + functionName.length() + 1, scriptBodyTmp.indexOf(')'));
 
-        return Arrays.asList(parameters);
+
+            String[] parameters = result.split(",");
+
+            System.out.println(Arrays.asList(parameters).toString());
+
+            secureAdd(new ListItem(functionName,Arrays.asList(parameters)));
+            //functionMetaData.add(new ListItem(functionName,Arrays.asList(parameters)));
+        }catch (StringIndexOutOfBoundsException e){
+           // System.out.println("TUTAJ");
+            secureAdd(new ListItem(functionName,null));
+            //functionMetaData.add(new ListItem(functionName,null));
+        }
+
+
+        //return Arrays.asList(parameters);
+    }
+
+    private void secureAdd(ListItem newListItem){
+
+        for(ListItem listItem : functionMetaData){
+            if(listItem.functionName.equals(newListItem.functionName)){
+                functionMetaData.remove(listItem);
+                functionMetaData.add(newListItem);
+                return;
+            }
+        }
+
+        functionMetaData.add(newListItem);
+
     }
 
 
-    private void extractNames(){
 
 
-        //engine.get("v1")
+    public void printAllListItems(){
 
-        Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
-
-        for (Map.Entry<String, Object> scopeEntry : bindings.entrySet()) {
-            Object value = scopeEntry.getValue();
-            String name = scopeEntry.getKey();
-            System.out.println(name);
-            System.out.println(value);
-
-
-
-
-            try {
-                //String func = (String) engine.get("x");
-                System.out.println(engine.eval("v1()"));
-
-
-            Set<String> allAttributes = bindings.keySet();
-
-            Set<String> allFunctions = new HashSet<String>();
-            for ( String attr : allAttributes ) {
-                allFunctions.add(attr);
-                if ( "function".equals( engine.eval("typeof " + attr) ) ) {
-
-                }
-
-                System.out.println(allFunctions);
-
-            }
-
-            } catch (ScriptException e) {
-                e.printStackTrace();
-            }
-
-
-
-
-//            if (value instanceof NativeFunction) {
-//                System.out.println(name);
-//                //log.info("Function -> " + name);
-//                NativeFunction function = NativeFunction.class.cast(value);
-//                //DebuggableScript debuggableFunction = function.getDebuggableView();
-//                //for (int i = 0; i < debuggableFunction.getParamAndVarCount(); i++) {
-//                //    log.info("First level arg: " + debuggableFunction.getParamOrVarName(i));
-//               // }
-//            } else if (value instanceof Undefined
-//                    || value instanceof String
-//                    || value instanceof Number) {
-//                //log.info("Global arg -> " + name);
-//            }
+        for(ListItem listItem : functionMetaData){
+            System.out.println(listItem.getFunctionName());
+            if(listItem.parameterNames == null) return;
+            for(String parName : listItem.parameterNames)
+                System.out.println(parName);
         }
 
+
+
+    }
+
+
+    public List<String> getLoadedFunctions(){
+        List<String> functionDeclarationList = new LinkedList<>();
+        for(ListItem item : functionMetaData){
+            functionDeclarationList.add(item.functionName);
+        }
+        return functionDeclarationList;
     }
 
 
@@ -124,11 +196,12 @@ public class ScriptLoader {
         if(errorText != null){
             return errorText;
         }else{
-
-            extractNames();
+            getNames(scriptBody);
+           // getFunctionName(scriptBody);
+           // String function
 
             //engine.put("functionName",scriptBody);
-            //scriptNames.add("functionName");
+            //functionMetaData.add("functionName");
 
 
 
