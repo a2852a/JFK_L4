@@ -73,13 +73,13 @@ public class ScriptLoader {
     }
 
 
-    private String getFunctionName(String functionDeclatation){
+    private String getFunctionName(String functionDeclaration){
 
-        int firstLetterIndex = functionDeclatation.indexOf(" ")+1;
-        int lastIndex = functionDeclatation.indexOf("(");
+        int firstLetterIndex = functionDeclaration.indexOf(" ")+1;
+        int lastIndex = functionDeclaration.indexOf("(");
 
 
-        return functionDeclatation.substring(firstLetterIndex,lastIndex);
+        return functionDeclaration.substring(firstLetterIndex,lastIndex);
 
     }
 
