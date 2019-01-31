@@ -1,29 +1,34 @@
 package sample;
 
 import javax.script.*;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ScriptLoader {
 
-    ScriptEngineManager factory;
-    ScriptEngine engine ;
-    HashMap<String,ListItem> functionMetaData;
+    private ScriptEngineManager factory;
+    private ScriptEngine engine ;
+    private HashMap<String,ListItem> functionMetaData;
+    private ScriptContext context;
+    private StringWriter stringWriter;
+    private PrintWriter printWriter;
 
     public ScriptLoader(){
         this.factory = new ScriptEngineManager();
         this.engine = factory.getEngineByName("nashorn");
         this.functionMetaData = new HashMap<>();
+        this.context = engine.getContext();
+        this.stringWriter = new StringWriter();
+        this.printWriter = new PrintWriter(stringWriter, true);
+        context.setWriter(printWriter);
+        context.setErrorWriter(printWriter);
     }
 
 
     private String evaluateScript(String scriptBody){
 
         try {
-            engine.eval(scriptBody).toString();
+            engine.eval(scriptBody);
         } catch (ScriptException e) {
             return e.getMessage();
         }
@@ -40,8 +45,6 @@ public class ScriptLoader {
 
         while(lastNameIndex > 0) {
 
-            //System.out.println(lastNameIndex);
-
             int startIndex = 0;
             int lastIndex = scriptBody.indexOf('}');
 
@@ -55,8 +58,6 @@ public class ScriptLoader {
             String functionName = getFunctionName(functionDeclaration);
 
             String[] parameters = getParameterNames(functionDeclaration);
-            //if(parameters == null) break;
-            //else{
 
             List<String> parList;
                 if(parameters == null){
@@ -65,12 +66,6 @@ public class ScriptLoader {
                     parList = Arrays.asList(parameters);
                 }
                 secureAdd(functionDeclaration,new ListItem(functionName,parList));
-                //secureAdd(new ListItem(functionDeclaration,Arrays.asList(parameters)));
-            //}
-
-
-
-           // System.out.println(Arrays.asList(parameters));
 
             scriptBody = scriptBody.substring(lastIndex + 1);
 
@@ -84,9 +79,7 @@ public class ScriptLoader {
         int lastIndex = functionDeclatation.indexOf("(");
 
 
-        String functionName = functionDeclatation.substring(firstLetterIndex,lastIndex);
-
-        return functionName;
+        return functionDeclatation.substring(firstLetterIndex,lastIndex);
 
     }
 
@@ -95,7 +88,7 @@ public class ScriptLoader {
         int startIndex = functionDeclaration.indexOf('(')+1;
         int endIndex = functionDeclaration.indexOf(')');
 
-        if(startIndex < 0 || endIndex < 0 || startIndex==endIndex) return null;
+        if(startIndex == 0 || endIndex < 0 || startIndex == endIndex) return null;
         else{
 
             String parametersRaw = functionDeclaration.substring(
@@ -104,8 +97,7 @@ public class ScriptLoader {
 
             );
 
-            String[] parameters = parametersRaw.split(",");
-            return parameters;
+            return parametersRaw.split(",");
         }
     }
 
@@ -131,15 +123,11 @@ public class ScriptLoader {
 
 
     public String invokeFunction(String functionKey, Object[] args){
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
-        PrintStream old = System.out;
-        System.setOut(ps);
+        String result;
+        stringWriter.getBuffer().setLength(0);
 
         Invocable invocable = (Invocable) engine;
-        String result ="ok";
-        //System.out.println(functionKey + " " + functionMetaData.toString());
+
         String functionName = functionMetaData.get(functionKey).getFunctionName();
 
         try {
@@ -148,14 +136,7 @@ public class ScriptLoader {
            result = e.getMessage();
         }
 
-        System.out.flush();
-        result = baos.toString() + "\n" + result;
-
-        System.out.flush();
-        System.setOut(old);
-
-
-        return result;
+        return stringWriter.toString() + result;
     }
 
 
@@ -176,14 +157,8 @@ public class ScriptLoader {
 
 
     public List<String> getLoadedFunctions(){
-        List<String> functionDeclarationList = new LinkedList<>();
 
-        for(String key : functionMetaData.keySet()){
-            functionDeclarationList.add(key);
-        }
-
-//        }
-        return functionDeclarationList;
+        return new LinkedList<>(functionMetaData.keySet());
     }
 
 

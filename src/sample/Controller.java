@@ -46,7 +46,7 @@ public class Controller implements Initializable{
         String result = scriptLoader.loadNewScript(tab2ScriptTextArea.getText());
         if(result !=null)
             tab2ScriptTextArea.setText(result);
-        scriptLoader.printAllListItems();
+        //scriptLoader.printAllListItems();
 
         ObservableList<String> items = FXCollections.observableArrayList(
                 scriptLoader.getLoadedFunctions()
@@ -77,7 +77,7 @@ public class Controller implements Initializable{
         String result = scriptLoader.invokeFunction(functionKey,null);
         tab1ResultTextArea.setText(result);
 
-        System.out.println("TEST " + result);
+        //System.out.println("TEST " + result);
     }
 
 
