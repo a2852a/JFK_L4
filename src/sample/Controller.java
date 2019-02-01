@@ -13,7 +13,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 
 import java.net.URL;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -49,12 +48,11 @@ public class Controller implements Initializable {
     @FXML
     private AnchorPane anchor1;
 
-
     private ScriptLoader scriptLoader;
 
-    String functionKey;
+    private String functionKey;
 
-    int paramsCount;
+    private int paramsCount;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -67,43 +65,17 @@ public class Controller implements Initializable {
         tab1Par1TextField.setDisable(true);
         tab1Par2TextField.setDisable(true);
         tab1ResultTextArea.setFont(Font.font("Verdana", 20));
-
         tab1ExecuteButton.setDisable(true);
-
     }
-
 
     @FXML
     private void addScriptAction() {
-
         String result = scriptLoader.loadNewScript(tab2ScriptTextArea.getText());
         if (result != null)
             tab2ScriptTextArea.setText(result);
 
         reloadList();
-
-//        ObservableList<String> items = FXCollections.observableArrayList(
-//                scriptLoader.getLoadedFunctions()
-//        );
-//
-//        tab1ScriptListView.setItems(items);
-//        tab1ScriptListView.getSelectionModel().clearSelection();
-//
-//
-//        tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-//            @Override
-//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//                if (newValue != null)
-//                    functionKey = newValue;
-//            }
-//        });
-//
-//        tab1ScriptListView.getSelectionModel().clearSelection();
-//        tab1Par1TextField.setDisable(true);
-//        tab1Par2TextField.setDisable(true);
-
     }
-
 
     private void reloadList(){
         ObservableList<String> items = FXCollections.observableArrayList(
@@ -114,7 +86,6 @@ public class Controller implements Initializable {
         tab1ScriptListView.getSelectionModel().clearSelection();
         tab1ExecuteButton.setDisable(true);
 
-
         tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -122,8 +93,6 @@ public class Controller implements Initializable {
                     functionKey = newValue;
             }
         });
-
-
         tab1ScriptListView.getSelectionModel().clearSelection();
 
         tab1ResultTextArea.setText("");
@@ -133,14 +102,10 @@ public class Controller implements Initializable {
 
         tab1Par2TextField.setDisable(true);
         tab1Par2TextField.setText("");
-
-
-
     }
 
 
     public Object toObject(Class clazz, String value) {
-
         try {
             if (Byte.class.isAssignableFrom(clazz)) return Byte.parseByte(value);
             if (Short.class.isAssignableFrom(clazz)) return Short.parseShort(value);
@@ -155,7 +120,6 @@ public class Controller implements Initializable {
     }
 
     private Object stringToObject(String string){
-
         Class[] classes = new Class[]{Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class};
 
         for (Class classC : classes) {
@@ -166,10 +130,7 @@ public class Controller implements Initializable {
         return string;
     }
 
-
-    public Object convert(String value) {
-
-
+    private Object convert(String value) {
         char firstChar = value.charAt(0);
         char lastChar = value.charAt(value.length() - 1);
 
@@ -177,13 +138,11 @@ public class Controller implements Initializable {
             return value.substring(1, value.length() - 1);
 
         return stringToObject(value);
-
     }
 
 
     @FXML
     private void invokeFunction() {
-
         Object args[] = null;
 
         String par1 = tab1Par1TextField.getText();
@@ -199,7 +158,6 @@ public class Controller implements Initializable {
 
 
         switch (paramsCount) {
-
             case 1: {
                 args = new Object[]{convert(par1)};
                 break;
@@ -208,13 +166,10 @@ public class Controller implements Initializable {
                 args = new Object[]{convert(par1), convert(par2)};
                 break;
             }
-
         }
-
 
         String result = scriptLoader.invokeFunction(functionKey, args);
         tab1ResultTextArea.setText(result);
-
     }
 
     @FXML
@@ -234,7 +189,7 @@ public class Controller implements Initializable {
 
     }
 
-    void setFields() {
+    private void setFields() {
         tab1Par1TextField.setText("");
         tab1Par2TextField.setText("");
         tab1ExecuteButton.setDisable(false);
@@ -270,13 +225,9 @@ public class Controller implements Initializable {
         setFields();
     }
 
+    List<Node> giveAllElements(){
 
-    public List<Node> giveAllElements(){
-
-        List<Node> childrenList = anchor1.getChildren();
-
-
-        return childrenList;
+        return anchor1.getChildren();
 
     }
 
