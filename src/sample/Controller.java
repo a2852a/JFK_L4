@@ -7,7 +7,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 
 import java.net.URL;
@@ -43,6 +45,13 @@ public class Controller implements Initializable {
 
     @FXML
     private TextField tab1Par2TextField;
+
+    @FXML
+    private AnchorPane anchor1;
+
+    @FXML
+    private AnchorPane anchor2;
+
 
     private ScriptLoader scriptLoader;
 
@@ -259,4 +268,22 @@ public class Controller implements Initializable {
     void functionSelectedKey() {
         setFields();
     }
+
+
+    public List<Node> giveAllElements(){
+
+        List<Node> childrenList = anchor1.getChildren();
+        List<Node> children1List = anchor2.getChildren();
+        //childrenList.addAll(anchor2.getChildren());
+//
+
+        for(Node node : children1List){
+            childrenList.add(node);
+        }
+
+
+        return childrenList;
+
+    }
+
 }

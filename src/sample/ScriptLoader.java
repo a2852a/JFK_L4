@@ -3,6 +3,7 @@ package sample;
 import javafx.scene.text.Font;
 
 import javax.script.*;
+import javafx.scene.Node;
 import java.io.*;
 import java.util.*;
 
@@ -37,6 +38,18 @@ public class ScriptLoader {
         nashornContext.setErrorWriter(printWriter);
         groovyContext.setWriter(printWriter);
         groovyContext.setErrorWriter(printWriter);
+
+        ScriptEngine scriptEngine;
+        for(int i = 0 ; i < 2 ; i++) {
+            if(i==0)
+                scriptEngine = engineNashorn;
+            else
+                scriptEngine = engineGroovy;
+            for (Node node : controller.giveAllElements()) {
+                scriptEngine.put(node.getId(),node);
+            }
+        }
+
     }
 
     public void setScriptLangType(ScriptLangType scriptLangType) {
