@@ -25,6 +25,7 @@ public class ScriptLoader {
     public ScriptLoader(Controller controller) {
         this.factory = new ScriptEngineManager();
         this.controller = controller;
+
         this.engineGroovy = factory.getEngineByName("groovy");
         this.engineNashorn = factory.getEngineByName("nashorn");
         this.nashornFunctionMetaData = new HashMap<>();
@@ -38,6 +39,10 @@ public class ScriptLoader {
         nashornContext.setErrorWriter(printWriter);
         groovyContext.setWriter(printWriter);
         groovyContext.setErrorWriter(printWriter);
+
+        nashornContext.setBindings(engineNashorn.createBindings(), ScriptContext.ENGINE_SCOPE);
+        groovyContext.setBindings(engineGroovy.createBindings(), ScriptContext.ENGINE_SCOPE);
+
 
         ScriptEngine scriptEngine;
         for(int i = 0 ; i < 2 ; i++) {
