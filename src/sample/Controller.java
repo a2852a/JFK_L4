@@ -142,7 +142,6 @@ public class Controller implements Initializable {
     public Object toObject(Class clazz, String value) {
 
         try {
-            if (Boolean.class.isAssignableFrom(value.getClass())) return Boolean.parseBoolean(value);
             if (Byte.class.isAssignableFrom(clazz)) return Byte.parseByte(value);
             if (Short.class.isAssignableFrom(clazz)) return Short.parseShort(value);
             if (Integer.class.isAssignableFrom(clazz)) return Integer.parseInt(value);
