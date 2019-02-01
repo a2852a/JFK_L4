@@ -10,6 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable{
@@ -34,6 +36,12 @@ public class Controller implements Initializable{
 
     @FXML
     private RadioButton tab2GroovyRadioButton;
+
+    @FXML
+    private TextField tab1Par1TextField;
+
+    @FXML
+    private TextField tab1Par2TextField;
 
     private ScriptLoader scriptLoader;
 
@@ -103,5 +111,30 @@ public class Controller implements Initializable{
         }
     }
 
+    void setFields(){
+        String functionKey = tab1ScriptListView.getSelectionModel().getSelectedItem();
+        List<String> params = scriptLoader.getNashornFunctionMetaData().get(functionKey).parameterNames;
+        int paramsCount=0;
+        if(params!=null) paramsCount = params.size();
+        if(paramsCount==1){
+            tab1Par1TextField.setDisable(false);
+            tab1Par2TextField.setDisable(true);
+        } else if(paramsCount==2){
+            tab1Par1TextField.setDisable(false);
+            tab1Par2TextField.setDisable(false);
+        } else if (paramsCount == 0 ){
+            tab1Par1TextField.setDisable(true);
+            tab1Par2TextField.setDisable(true);
+        }
+    }
 
+    @FXML
+    void functionSelected() {
+        setFields();
+    }
+
+    @FXML
+    void functionSelectedKey() {
+        setFields();
+    }
 }

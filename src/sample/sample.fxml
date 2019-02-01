@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
@@ -14,9 +15,11 @@
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <ListView fx:id="tab1ScriptListView" layoutX="98.0" layoutY="56.0" prefHeight="390.0" prefWidth="253.0" />
+                  <ListView fx:id="tab1ScriptListView" layoutX="14.0" layoutY="11.0" onKeyReleased="#functionSelectedKey" onMouseClicked="#functionSelected" prefHeight="390.0" prefWidth="253.0" />
                   <Button fx:id="tab1ExecuteButton" layoutX="886.0" layoutY="509.0" mnemonicParsing="false" onAction="#invokeFunction" text="Button" />
-                  <TextArea fx:id="tab1ResultTextArea" layoutX="419.0" layoutY="56.0" prefHeight="384.0" prefWidth="513.0" />
+                  <TextArea fx:id="tab1ResultTextArea" layoutX="319.0" layoutY="11.0" prefHeight="384.0" prefWidth="513.0" />
+                  <TextField fx:id="tab1Par1TextField" layoutX="55.0" layoutY="461.0" />
+                  <TextField fx:id="tab1Par2TextField" layoutX="319.0" layoutY="461.0" />
                </children></AnchorPane>
       </content>
     </Tab>

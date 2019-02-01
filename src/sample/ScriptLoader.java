@@ -69,7 +69,11 @@ public class ScriptLoader {
         return null;
     }
 
-    private void getNames(String scriptBody) {
+    public HashMap<String, ListItem> getNashornFunctionMetaData() {
+        return nashornFunctionMetaData;
+    }
+
+    private String getNames(String scriptBody) {
 
         scriptBody = scriptBody.trim().replaceAll(" +", " ");
         scriptBody = scriptBody.trim().replaceAll("\n+", "");
@@ -83,7 +87,7 @@ public class ScriptLoader {
 
             lastNameIndex = scriptBody.indexOf(')') + 1;
 
-            if (lastIndex < 0 || lastNameIndex < 0) return;
+            if (lastIndex < 0 || lastNameIndex < 0) return null;
 
             String functionDeclaration = scriptBody.substring(startIndex, lastNameIndex);
 
@@ -97,12 +101,16 @@ public class ScriptLoader {
                 parList = null;
             } else {
                 parList = Arrays.asList(parameters);
+                if(parList.size()>2) return "too much params, max 2 allowed";
             }
+
+
             secureAdd(functionDeclaration, new ListItem(functionName, parList));
 
             scriptBody = scriptBody.substring(lastIndex + 1);
 
         }
+        return null;
     }
 
 
@@ -227,11 +235,8 @@ public class ScriptLoader {
         if (errorText != null) {
             return errorText;
         } else {
-            getNames(scriptBody);
-
+            return getNames(scriptBody);
             //TODO obsluga zapisu do listy
         }
-
-        return null;
     }
 }
