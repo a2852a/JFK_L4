@@ -67,6 +67,9 @@ public class Controller implements Initializable {
         tab1Par1TextField.setDisable(true);
         tab1Par2TextField.setDisable(true);
         tab1ResultTextArea.setFont(Font.font("Verdana", 20));
+
+        tab1ExecuteButton.setDisable(true);
+
     }
 
 
@@ -109,6 +112,7 @@ public class Controller implements Initializable {
 
         tab1ScriptListView.setItems(items);
         tab1ScriptListView.getSelectionModel().clearSelection();
+        tab1ExecuteButton.setDisable(true);
 
 
         tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
@@ -234,6 +238,7 @@ public class Controller implements Initializable {
     void setFields() {
         tab1Par1TextField.setText("");
         tab1Par2TextField.setText("");
+        tab1ExecuteButton.setDisable(false);
 
         String functionKey = tab1ScriptListView.getSelectionModel().getSelectedItem();
         if(functionKey == null) return;
