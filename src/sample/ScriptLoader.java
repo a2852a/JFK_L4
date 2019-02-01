@@ -1,7 +1,5 @@
 package sample;
 
-import javafx.scene.text.Font;
-
 import javax.script.*;
 import javafx.scene.Node;
 import java.io.*;
@@ -81,7 +79,6 @@ public class ScriptLoader {
         try {
             if (scriptLangType == ScriptLangType.NASHORN) {
                 engineNashorn.put("controller", controller);
-                //controller.getTextArea().setFont(Font.font("Verdana", 100));
                 engineNashorn.eval(scriptBody);
             } else {
                 engineGroovy.put("textArea", controller.getTextArea());
