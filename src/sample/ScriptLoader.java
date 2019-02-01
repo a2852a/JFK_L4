@@ -178,6 +178,9 @@ public class ScriptLoader {
     }
 
 
+
+
+
     public String invokeFunction(String functionKey, Object[] args) {
         String result;
         stringWriter.getBuffer().setLength(0);
@@ -236,7 +239,19 @@ public class ScriptLoader {
             return errorText;
         } else {
             return getNames(scriptBody);
-            //TODO obsluga zapisu do listy
         }
     }
+
+    public HashMap<String, ListItem> getGroovyFunctionMetaData() {
+        return groovyFunctionMetaData;
+    }
+
+    public HashMap<String,ListItem> getCurrentMeta(){
+        if(scriptLangType == ScriptLangType.NASHORN)
+            return nashornFunctionMetaData;
+        else
+            return groovyFunctionMetaData;
+    }
+
+
 }

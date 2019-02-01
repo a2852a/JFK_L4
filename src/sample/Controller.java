@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable{
+public class Controller implements Initializable {
 
     @FXML
     private ListView<String> tab1ScriptListView;
@@ -47,6 +47,8 @@ public class Controller implements Initializable{
 
     String functionKey;
 
+    int paramsCount;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,16 +57,45 @@ public class Controller implements Initializable{
         tab2NashornRadioButton.setToggleGroup(toggleGroup);
         tab2GroovyRadioButton.setToggleGroup(toggleGroup);
         tab2NashornRadioButton.setSelected(true);
+        paramsCount = 0;
+        tab1Par1TextField.setDisable(true);
+        tab1Par2TextField.setDisable(true);
     }
 
+
     @FXML
-    private void addScriptAction(){
+    private void addScriptAction() {
 
         String result = scriptLoader.loadNewScript(tab2ScriptTextArea.getText());
-        if(result !=null)
+        if (result != null)
             tab2ScriptTextArea.setText(result);
-        //scriptLoader.printAllListItems();
 
+        reloadList();
+
+//        ObservableList<String> items = FXCollections.observableArrayList(
+//                scriptLoader.getLoadedFunctions()
+//        );
+//
+//        tab1ScriptListView.setItems(items);
+//        tab1ScriptListView.getSelectionModel().clearSelection();
+//
+//
+//        tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+//            @Override
+//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//                if (newValue != null)
+//                    functionKey = newValue;
+//            }
+//        });
+//
+//        tab1ScriptListView.getSelectionModel().clearSelection();
+//        tab1Par1TextField.setDisable(true);
+//        tab1Par2TextField.setDisable(true);
+
+    }
+
+
+    private void reloadList(){
         ObservableList<String> items = FXCollections.observableArrayList(
                 scriptLoader.getLoadedFunctions()
         );
@@ -76,32 +107,111 @@ public class Controller implements Initializable{
         tab1ScriptListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if(newValue != null)
+                if (newValue != null)
                     functionKey = newValue;
-
-
-                //tab1ResultTextArea.setText(scriptLoader.invokeFunction(newValue,null));
             }
         });
 
 
-       // System.out.println(scriptLoader.getParametersName(tab2ScriptTextArea.getText(), "test1"));
+        tab1ScriptListView.getSelectionModel().clearSelection();
+
+        tab1ResultTextArea.setText("");
+
+        tab1Par1TextField.setDisable(true);
+        tab1Par1TextField.setText("");
+
+        tab1Par2TextField.setDisable(true);
+        tab1Par2TextField.setText("");
+
+
 
     }
 
+
+    public Object toObject(Class clazz, String value) {
+
+        try {
+            if (Boolean.class.isAssignableFrom(value.getClass())) return Boolean.parseBoolean(value);
+            if (Byte.class.isAssignableFrom(clazz)) return Byte.parseByte(value);
+            if (Short.class.isAssignableFrom(clazz)) return Short.parseShort(value);
+            if (Integer.class.isAssignableFrom(clazz)) return Integer.parseInt(value);
+            if (Long.class.isAssignableFrom(clazz)) return Long.parseLong(value);
+            if (Float.class.isAssignableFrom(clazz)) return Float.parseFloat(value);
+            if (Double.class.isAssignableFrom(clazz)) return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return value;
+        }
+        return value;
+    }
+
+    private Object stringToObject(String string){
+
+        Class[] classes = new Class[]{Boolean.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class};
+
+        for (Class classC : classes) {
+            Object obj = toObject(classC, string);
+            if (!(obj instanceof String)) return obj;
+        }
+
+        return string;
+    }
+
+
+    public Object convert(String value) {
+
+
+        char firstChar = value.charAt(0);
+        char lastChar = value.charAt(value.length() - 1);
+
+        if ((firstChar == '\"' && lastChar == '\"') || (firstChar == '\'' && lastChar == '\''))
+            return value.substring(1, value.length() - 1);
+
+        return stringToObject(value);
+
+    }
+
+
     @FXML
-    private void invokeFunction(){
-        String result = scriptLoader.invokeFunction(functionKey,null);
+    private void invokeFunction() {
+
+        Object args[] = null;
+
+        String par1 = tab1Par1TextField.getText();
+        String par2 = tab1Par2TextField.getText();
+
+
+        if ((paramsCount==1&&(par1.isEmpty()))||
+                (paramsCount==2&&(par1.isEmpty() || par2.isEmpty()))
+        ) {
+            tab1ResultTextArea.setText("Insufficient parameters");
+            return;
+        }
+
+
+        switch (paramsCount) {
+
+            case 1: {
+                args = new Object[]{convert(par1)};
+                break;
+            }
+            case 2: {
+                args = new Object[]{convert(par1), convert(par2)};
+                break;
+            }
+
+        }
+
+
+        String result = scriptLoader.invokeFunction(functionKey, args);
         tab1ResultTextArea.setText(result);
 
-        //System.out.println("TEST " + result);
     }
 
     @FXML
     void radioButtonSelected(ActionEvent event) {
-        RadioButton radioButton = (RadioButton)event.getSource();
+        RadioButton radioButton = (RadioButton) event.getSource();
         String text = radioButton.getText();
-        switch(text) {
+        switch (text) {
             case "Nashorn":
                 scriptLoader.setScriptLangType(ScriptLoader.ScriptLangType.NASHORN);
                 break;
@@ -109,20 +219,27 @@ public class Controller implements Initializable{
                 scriptLoader.setScriptLangType(ScriptLoader.ScriptLangType.GROOVY);
                 break;
         }
+
+        reloadList();
+
     }
 
-    void setFields(){
+    void setFields() {
+        tab1Par1TextField.setText("");
+        tab1Par2TextField.setText("");
+
         String functionKey = tab1ScriptListView.getSelectionModel().getSelectedItem();
-        List<String> params = scriptLoader.getNashornFunctionMetaData().get(functionKey).parameterNames;
-        int paramsCount=0;
-        if(params!=null) paramsCount = params.size();
-        if(paramsCount==1){
+        if(functionKey == null) return;
+        List<String> params = scriptLoader.getCurrentMeta().get(functionKey).parameterNames;
+        paramsCount = 0;
+        if (params != null) paramsCount = params.size();
+        if (paramsCount == 1) {
             tab1Par1TextField.setDisable(false);
             tab1Par2TextField.setDisable(true);
-        } else if(paramsCount==2){
+        } else if (paramsCount == 2) {
             tab1Par1TextField.setDisable(false);
             tab1Par2TextField.setDisable(false);
-        } else if (paramsCount == 0 ){
+        } else if (paramsCount == 0) {
             tab1Par1TextField.setDisable(true);
             tab1Par2TextField.setDisable(true);
         }
