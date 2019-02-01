@@ -49,9 +49,6 @@ public class Controller implements Initializable {
     @FXML
     private AnchorPane anchor1;
 
-    @FXML
-    private AnchorPane anchor2;
-
 
     private ScriptLoader scriptLoader;
 
@@ -273,13 +270,6 @@ public class Controller implements Initializable {
     public List<Node> giveAllElements(){
 
         List<Node> childrenList = anchor1.getChildren();
-        List<Node> children1List = anchor2.getChildren();
-        //childrenList.addAll(anchor2.getChildren());
-//
-
-        for(Node node : children1List){
-            childrenList.add(node);
-        }
 
 
         return childrenList;

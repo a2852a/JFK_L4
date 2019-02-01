@@ -1,46 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-  <tabs>
-    <Tab text="Untitled Tab 1">
-      <content>
-        <AnchorPane fx:id="anchor1" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <ListView fx:id="tab1ScriptListView" layoutX="14.0" layoutY="11.0" onKeyReleased="#functionSelectedKey" onMouseClicked="#functionSelected" prefHeight="390.0" prefWidth="253.0" />
-                  <Button fx:id="tab1ExecuteButton" layoutX="886.0" layoutY="509.0" mnemonicParsing="false" onAction="#invokeFunction" text="Button" />
-                  <TextArea fx:id="tab1ResultTextArea" layoutX="319.0" layoutY="11.0" prefHeight="384.0" prefWidth="513.0" />
-                  <TextField fx:id="tab1Par1TextField" layoutX="55.0" layoutY="461.0" />
-                  <TextField fx:id="tab1Par2TextField" layoutX="319.0" layoutY="461.0" />
-               </children></AnchorPane>
-      </content>
-    </Tab>
-    <Tab text="Untitled Tab 2">
-      <content>
-        <AnchorPane fx:id="anchor2" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <TextArea fx:id="tab2ScriptTextArea" layoutX="112.0" layoutY="69.0" prefHeight="388.0" prefWidth="586.0" />
-                  <Button fx:id="tab2AddScriptButton" layoutX="794.0" layoutY="473.0" mnemonicParsing="false" onAction="#addScriptAction" prefHeight="31.0" prefWidth="116.0" text="Button" />
-                  <RadioButton fx:id="tab2NashornRadioButton" layoutX="748.0" layoutY="69.0" mnemonicParsing="false" onAction="#radioButtonSelected" text="Nashorn" />
-                  <RadioButton fx:id="tab2GroovyRadioButton" layoutX="748.0" layoutY="104.0" mnemonicParsing="false" onAction="#radioButtonSelected" text="Groovy" />
-               </children></AnchorPane>
-      </content>
-    </Tab>
-      <Tab text="Untitled Tab">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-        </content>
-      </Tab>
-  </tabs>
-</TabPane>
+<AnchorPane fx:id="anchor1" minHeight="0.0" minWidth="0.0" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <RadioButton fx:id="tab2NashornRadioButton" layoutX="734.0" layoutY="499.0" mnemonicParsing="false" onAction="#radioButtonSelected" text="Nashorn" />
+      <TextArea fx:id="tab2ScriptTextArea" layoutX="602.0" layoutY="42.0" prefHeight="421.0" prefWidth="374.0" />
+      <ListView fx:id="tab1ScriptListView" layoutX="14.0" layoutY="41.0" onKeyReleased="#functionSelectedKey" onMouseClicked="#functionSelected" prefHeight="421.0" prefWidth="205.0" />
+      <Button fx:id="tab1ExecuteButton" layoutX="375.0" layoutY="496.0" mnemonicParsing="false" onAction="#invokeFunction" text="Wykonaj" />
+      <TextArea fx:id="tab1ResultTextArea" editable="false" layoutX="235.0" layoutY="42.0" prefHeight="421.0" prefWidth="353.0" />
+      <TextField fx:id="tab1Par1TextField" layoutX="26.0" layoutY="495.0" />
+      <TextField fx:id="tab1Par2TextField" layoutX="26.0" layoutY="552.0" />
+      <Button fx:id="tab2AddScriptButton" layoutX="860.0" layoutY="493.0" mnemonicParsing="false" onAction="#addScriptAction" prefHeight="31.0" prefWidth="116.0" text="dodaj skrypt" />
+      <RadioButton fx:id="tab2GroovyRadioButton" layoutX="734.0" layoutY="534.0" mnemonicParsing="false" onAction="#radioButtonSelected" text="Groovy" />
+      <Label fx:id="par1Label" layoutX="73.0" layoutY="477.0" text="parametr 1:" />
+      <Label fx:id="par2Label" layoutX="73.0" layoutY="535.0" text="parametr 2:" />
+      <Label fx:id="functionListLabel" layoutX="75.0" layoutY="24.0" text="Lista funkcji:" />
+      <Label fx:id="resultLabel" layoutX="382.0" layoutY="24.0" text="Rezultat:" />
+      <Label fx:id="scriptLabel" layoutX="766.0" layoutY="24.0" text="Skrypt:" />
+   </children>
+</AnchorPane>
