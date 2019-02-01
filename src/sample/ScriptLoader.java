@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.scene.text.Font;
+
 import javax.script.*;
 import java.io.*;
 import java.util.*;
@@ -17,9 +19,11 @@ public class ScriptLoader {
     private PrintWriter printWriter;
     private ScriptLangType scriptLangType;
 
-    public ScriptLoader() {
-        this.factory = new ScriptEngineManager();
+    public Controller controller;
 
+    public ScriptLoader(Controller controller) {
+        this.factory = new ScriptEngineManager();
+        this.controller = controller;
         this.engineGroovy = factory.getEngineByName("groovy");
         this.engineNashorn = factory.getEngineByName("nashorn");
         this.nashornFunctionMetaData = new HashMap<>();
@@ -57,9 +61,12 @@ public class ScriptLoader {
     private String evaluateScript(String scriptBody) {
 
         try {
-            if (scriptLangType == ScriptLangType.NASHORN)
+            if (scriptLangType == ScriptLangType.NASHORN) {
+                engineNashorn.put("controller", controller);
+                //controller.getTextArea().setFont(Font.font("Verdana", 100));
                 engineNashorn.eval(scriptBody);
-            else {
+            } else {
+                engineGroovy.put("textArea", controller.getTextArea());
                 engineGroovy.eval(scriptBody);
             }
         } catch (ScriptException e) {
@@ -101,7 +108,7 @@ public class ScriptLoader {
                 parList = null;
             } else {
                 parList = Arrays.asList(parameters);
-                if(parList.size()>2) return "too much params, max 2 allowed";
+                if (parList.size() > 2) return "too much params, max 2 allowed";
             }
 
 
@@ -178,9 +185,6 @@ public class ScriptLoader {
     }
 
 
-
-
-
     public String invokeFunction(String functionKey, Object[] args) {
         String result;
         stringWriter.getBuffer().setLength(0);
@@ -246,8 +250,8 @@ public class ScriptLoader {
         return groovyFunctionMetaData;
     }
 
-    public HashMap<String,ListItem> getCurrentMeta(){
-        if(scriptLangType == ScriptLangType.NASHORN)
+    public HashMap<String, ListItem> getCurrentMeta() {
+        if (scriptLangType == ScriptLangType.NASHORN)
             return nashornFunctionMetaData;
         else
             return groovyFunctionMetaData;

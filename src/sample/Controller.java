@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.text.Font;
 
 import java.net.URL;
 import java.util.LinkedList;
@@ -49,10 +50,9 @@ public class Controller implements Initializable {
 
     int paramsCount;
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        scriptLoader = new ScriptLoader();
+        scriptLoader = new ScriptLoader(this);
         ToggleGroup toggleGroup = new ToggleGroup();
         tab2NashornRadioButton.setToggleGroup(toggleGroup);
         tab2GroovyRadioButton.setToggleGroup(toggleGroup);
@@ -60,6 +60,7 @@ public class Controller implements Initializable {
         paramsCount = 0;
         tab1Par1TextField.setDisable(true);
         tab1Par2TextField.setDisable(true);
+        tab1ResultTextArea.setFont(Font.font("Verdana", 20));
     }
 
 
@@ -243,6 +244,10 @@ public class Controller implements Initializable {
             tab1Par1TextField.setDisable(true);
             tab1Par2TextField.setDisable(true);
         }
+    }
+
+    TextArea getTextArea() {
+        return tab1ResultTextArea;
     }
 
     @FXML
